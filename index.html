@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ডিজিটাল তাসবিহ - রিয়াদুল ইসলাম</title>
+    <link rel="icon" type="image/jpg" href="https://i.postimg.cc/kGX4JPL6/20260314-071415.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         :root {
             --primary-color: #006400;
@@ -25,221 +28,249 @@
             font-family: 'Hind Siliguri', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0; padding: 20px;
+            margin: 0; padding: 15px;
             transition: 0.3s;
             display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
         }
 
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin-bottom: 5px; font-size: 24px; }
-        .dev-name { font-size: 13px; margin: 0; opacity: 0.8; }
-
-        .top-controls { display: flex; gap: 10px; margin-bottom: 20px; }
-
-        .container { width: 100%; max-width: 500px; }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px; padding: 20px;
-            margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border-top: 5px solid var(--primary-color);
-            position: relative;
+        /* Sidebar Styling */
+        .sidebar {
+            position: fixed; top: 0; left: -300px;
+            width: 280px; height: 100%;
+            background: var(--card-bg); z-index: 10000;
+            transition: 0.4s ease-in-out; 
+            box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+            overflow-y: auto; padding: 30px 20px;
         }
 
-        .arabic { font-size: 24px; text-align: right; color: var(--primary-color); font-weight: bold; margin-bottom: 8px; }
-        .pronunciation { font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 4px; }
-        .meaning { font-size: 14px; color: #666; font-style: italic; margin-bottom: 15px; line-height: 1.4; }
+        .sidebar.active { left: 0; }
 
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px; background: rgba(0,0,0,0.05);
-            padding: 10px; border-radius: 10px; margin: 15px 0;
-            text-align: center;
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; z-index: 9999;
         }
 
-        .stat-box span { display: block; font-size: 11px; }
-        .stat-box strong { font-size: 18px; color: var(--primary-color); }
+        .sidebar-overlay.active { display: block; }
 
-        .tap-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
-
-        .main-tap-btn {
-            width: 85px; height: 85px;
-            background: var(--primary-color);
-            color: white; border: 4px solid var(--accent-color);
-            border-radius: 50%; font-size: 30px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+        /* Top Bar */
+        .top-bar { 
+            width: 100%; max-width: 500px; 
+            display: flex; justify-content: space-between; 
+            align-items: center; margin-bottom: 20px; 
         }
-        .main-tap-btn:active { transform: scale(0.9); }
 
-        .tap-text { font-size: 12px; color: var(--text-color); margin-top: 5px; font-weight: bold; opacity: 0.7; }
+        .menu-trigger {
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
 
-        .input-group { display: flex; gap: 5px; margin-bottom: 8px; }
-        input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background: var(--card-bg); color: var(--text-color); }
+        .hamburger { font-size: 22px; color: var(--primary-color); }
+
+        .logo-img { 
+            width: 50px; height: 50px; 
+            border-radius: 50%; border: 2px solid var(--primary-color); 
+            object-fit: cover; 
+        }
         
-        button { border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-action { background: var(--primary-color); color: white; padding: 10px 15px; }
-        .btn-gold { background: var(--accent-color); color: white; padding: 10px 15px; }
-        .btn-share { background: #3498db; color: white; padding: 8px 15px; font-size: 13px; }
-        .btn-mode { background: #34495e; color: white; padding: 8px 15px; font-size: 13px; }
-
-        .btn-reset-large {
-            width: 100%; padding: 12px;
-            background-color: #e74c3c; color: white;
-            margin-top: 15px; font-size: 14px;
+        /* Modal System */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--card-bg); z-index: 10001;
+            display: none; overflow-y: auto; padding: 20px;
+            box-sizing: border-box;
         }
+        .modal.active { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .celebration { color: #27ae60; font-weight: bold; display: none; text-align: center; margin: 10px 0; }
+        .modal-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
+
+        /* Card & UI */
+        .card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 25px; border-top: 5px solid var(--primary-color); box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 100%; max-width: 500px; box-sizing: border-box;}
+        .arabic { font-size: 26px; text-align: right; color: var(--primary-color); font-weight: bold; margin-bottom: 10px; line-height: 1.8; word-wrap: break-word; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background: rgba(0,0,0,0.04); padding: 12px; border-radius: 12px; margin: 15px 0; text-align: center; }
+        .main-tap-btn { width: 95px; height: 95px; background: var(--primary-color); border: 5px solid var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto; box-shadow: 0 5px 15px rgba(0,0,0,0.25); font-size: 38px; color: white; transition: 0.1s; }
+        .main-tap-btn:active { transform: scale(0.92); }
+        .btn-reset-large { width: 100%; padding: 14px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        
+        .menu-item { padding: 16px; margin: 12px 0; background: rgba(0,0,0,0.04); border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 700; transition: 0.2s; }
+        .data-item { border-bottom: 2px solid #eee; padding: 20px 0; }
+        .data-item b { font-size: 18px; color: var(--primary-color); display: block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="top-controls">
-        <button class="btn-mode" onclick="toggleDarkMode()">🌓 ডার্ক মোড</button>
-        <button class="btn-share" onclick="shareApp()">🔗 শেয়ার করুন</button>
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div style="text-align:center; margin-bottom:30px;">
+            <img src="https://i.postimg.cc/kGX4JPL6/20260314-071415.jpg" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--primary-color); margin-bottom: 10px;">
+            <p style="font-size: 11px; margin: 0; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">Developed By</p>
+            <h3 style="margin: 0 0 15px 0; color: var(--primary-color);">রিয়াদুল ইসলাম</h3>
+            <div style="display:flex; justify-content:center; gap:25px; font-size:26px;">
+                <a href="https://www.facebook.com/riadul.islam.bishal" target="_blank" style="color:#1877F2"><i class="fab fa-facebook"></i></a>
+                <a href="https://wa.me/971568679647" target="_blank" style="color:#25D366"><i class="fab fa-whatsapp"></i></a>
+                <a href="mailto:riadulislambishal2@gmail.com" style="color:#EA4335"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+        <div class="menu-item" onclick="openModal('dua')"><i class="fas fa-hands-praying"></i> প্রয়োজনীয় সুরা ও দোয়া</div>
+        <div class="menu-item" onclick="openModal('quran')"><i class="fas fa-book-quran"></i> মুনাজাতের আয়াত</div>
+        <div class="menu-item" onclick="openModal('names')"><i class="fas fa-list-ol"></i> আল্লাহর ৯৯ নাম</div>
+        <div class="menu-item" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> ডার্ক মোড</div>
     </div>
 
-    <div class="header">
-        <h1>ডিজিটাল তাসবিহ কাউন্টার</h1>
-        <p class="dev-name">Developed By: <span style="color: var(--primary-color); font-weight: bold;">রিয়াদুল ইসলাম</span></p>
+    <div class="modal" id="dataModal">
+        <div class="modal-header">
+            <i class="fas fa-arrow-left" style="font-size: 22px; cursor: pointer; padding: 10px;" onclick="closeModal()"></i>
+            <h2 id="modalTitle" style="margin:0; font-size: 20px;"></h2>
+        </div>
+        <div id="modalBody"></div>
     </div>
 
-    <div id="app" class="container"></div>
+    <div class="top-bar">
+        <div class="menu-trigger" onclick="openSidebar()">
+            <i class="fas fa-bars hamburger"></i>
+            <img src="https://i.postimg.cc/kGX4JPL6/20260314-071415.jpg" class="logo-img">
+        </div>
+        <h2 style="color:var(--primary-color); margin:0; font-size: 18px;">ডিজিটাল তাসবিহ</h2>
+        <i class="fas fa-share-alt" onclick="shareApp()" style="font-size:22px; cursor:pointer; color: var(--primary-color); padding: 10px;"></i>
+    </div>
+
+    <div id="app" style="width:100%; max-width:500px;"></div>
 
     <script>
         const tasbeehs = [
+            { id: 'kalima', ar: 'لَا إِلٰهَ إِلَّا اللهُ مُحَمَّ رَسُولُ اللهِ', bn: 'লা-ইলাহা ইল্লাল্লাহু মুহাম্মাদুর রাসুলুল্লাহ', mean: 'আল্লাহ ছাড়া কোনো উপাস্য নেই, মুহাম্মদ (সা.) আল্লাহর রাসুল।' },
+            { id: 'subhan', ar: 'سُبْحَانَ ٱللَّٰهِ', bn: 'সুবহানাল্লাহ', mean: 'আল্লাহ অতি পবিত্র।' },
+            { id: 'alhamd', ar: 'ٱلْحَمْدُ لِلَّٰهِ', bn: 'আলহামদুলিল্লাহ', mean: 'সমস্ত প্রশংসা আল্লাহর জন্য।' }
+        ];
+
+        const duaData = [
             { 
-                id: 'kalima', 
-                ar: 'لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ', 
-                bn: 'লা-ইলাহা ইল্লাল্লাহু মুহাম্মাদুর রাসুলুল্লাহ',
-                mean: 'আল্লাহ ছাড়া কোনো উপাস্য নেই, মুহাম্মদ (সা.) আল্লাহর প্রেরিত রাসুল।'
+                t: "আয়াতুল কুরসি", 
+                ar: "اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ  عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ", 
+                bn: "আল্লাহু লা ইলাহা ইল্লা হুয়াল হাইয়ুল কাইয়ুম...", 
+                m: "আল্লাহ, তিনি ছাড়া কোনো উপাস্য নেই, তিনি চিরঞ্জীব, সর্বসত্তার ধারক। তাকে তন্দ্রা ও নিদ্রা স্পর্শ করে না। আকাশ ও পৃথিবীতে যা কিছু আছে সব তারই। তিনি সুউচ্চ, সুমহান।" 
             },
             { 
-                id: 'subhan', 
-                ar: 'سُبْحَانَ ٱللَّٰهِ', 
-                bn: 'সুবহানাল্লাহ',
-                mean: 'আল্লাহ অতি পবিত্র।'
+                t: "সুরা ইখলাস", 
+                ar: "قُلْ هُوَ اللَّهُ أَحَدٌ (1) اللَّهُ الصَّمَدُ (2) لَمْ يَلِدْ وَلَمْ يُولَدْ (3) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (4)", 
+                bn: "কুল হুয়াল্লাহু আহাদ...", 
+                m: "বলুন, তিনিই আল্লাহ, একক। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তাঁকেও জন্ম দেওয়া হয়নি। এবং তাঁর সমতুল্য কেউ নেই।" 
             },
             { 
-                id: 'alhamd', 
-                ar: 'ٱلْحَمْدُ لِلَّٰهِ', 
-                bn: 'আলহামদুলিল্লাহ',
-                mean: 'সমস্ত প্রশংসা আল্লাহর জন্য।'
+                t: "সুরা ফালাক", 
+                ar: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)", 
+                bn: "কুল আউজু বিরাব্বিল ফালাক...", 
+                m: "বলুন, আমি আশ্রয় গ্রহণ করছি প্রভাতের পালনকর্তার। তিনি যা সৃষ্টি করেছেন তার অনিষ্ট থেকে। অন্ধকার রাত্রির অনিষ্ট থেকে..." 
             },
             { 
-                id: 'allahuakbar', 
-                ar: 'ٱللَّٰهُ أَكْبَرُ', 
-                bn: 'আল্লাহু আকবার',
-                mean: 'আল্লাহ সবচেয়ে মহান।'
-            },
-            { 
-                id: 'istigfar', 
-                ar: 'أَسْتَغْفِرُ ٱللَّٰهَ', 
-                bn: 'আস্তাগফিরুল্লাহ',
-                mean: 'আমি আল্লাহর কাছে ক্ষমা চাই।'
+                t: "সুরা নাস", 
+                ar: "قُلْ أَعُوذُ بِرَبِّ النَّاسِ (1) مَلِكِ النَّاسِ (2) إِلَهِ النَّاسِ (3) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (4) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (5) مِنَ الْجِنَّةِ وَالنَّاسِ (6)", 
+                bn: "কুল আউজু বিরাব্বিন নাস...", 
+                m: "বলুন, আমি আশ্রয় গ্রহণ করছি মানুষের পালনকর্তার। মানুষের অধিপতির। মানুষের উপাস্যের। প্ররোচনাদানকারীর অনিষ্ট থেকে..." 
             }
+        ];
+
+        const names99 = [
+            {ar: "الله", bn: "আল্লাহ", m: "একমাত্র উপাস্য"}, {ar: "الرَّحْمَنُ", bn: "আর-রহমান", m: "পরম দয়ালু"}, {ar: "الرَّحِيمُ", bn: "আর-রাহীম", m: "অতিশয় মেহেরবান"}, {ar: "المَلِكُ", bn: "আল-মালিক", m: "সর্বময় ক্ষমতার অধিকারী"}, {ar: "القُدُّوسُ", bn: "আল-কুদ্দুস", m: "অতি পবিত্র"}, {ar: "السَّلَامُ", bn: "আস-সালাম", m: "শান্তি দানকারী"}, {ar: "المُؤْمِنُ", bn: "আল-মুমিন", m: "নিরাপত্তা দানকারী"}, {ar: "المُہَيْمِنُ", bn: "আল-মুহাইমিন", m: "রক্ষক"}, {ar: "العَزِيزُ", bn: "আল-আজিজ", m: "পরাক্রমশালী"}, {ar: "الجَبَّارُ", bn: "আল-জাব্বার", m: "প্রবল"}, {ar: "المُتَكَبِّরُ", bn: "আল-মুতাকাব্বির", m: "গৌরবান্বিত"}, {ar: "الخَالِقُ", bn: "আল-খালিক", m: "সৃষ্টিকর্তা"}, {ar: "البَارِئُ", bn: "আল-বারিউ", m: "সঠিক রূপদানকারী"}, {ar: "المُصَوِّরُ", bn: "আল-মুসাব্বির", m: "আকৃতিদানকারী"}, {ar: "الغَفَّارُ", bn: "আল-গাফফার", m: "ক্ষমাকারী"}, {ar: "القَهَّارُ", bn: "আল-কাহহার", m: "দমনকারী"}, {ar: "الوَهَّابُ", bn: "আল-ওয়াহহাব", m: "দানকারী"}, {ar: "الرَّزَّاقُ", bn: "আর-রাজজাক", m: "রিজিকদাতা"}, {ar: "الفَتَّاحُ", bn: "আল-ফাত্তাহ", m: "বিজয়দানকারী"}, {ar: "العَلِيمُ", bn: "আল-আলিম", m: "সর্বজ্ঞ"}
+        ];
+
+        const quranDua = [
+            { t: "গুনাহ মাফের দোয়া", ar: "رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا...", bn: "রব্বানাগফির লানা জুনুবানা...", m: "হে আমাদের পালনকর্তা! আমাদের গুনাহসমূহ ক্ষমা করুন।" },
+            { t: "পিতামাতার জন্য দোয়া", ar: "رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَ صغيرا", bn: "রাব্বির হামহুমা কামা রব্বায়ানি সাগিরা", m: "হে আমার প্রতিপালক! তাদের উভয়ের প্রতি রহম করুন..." }
         ];
 
         function initApp() {
             const container = document.getElementById('app');
+            container.innerHTML = "";
             tasbeehs.forEach(item => {
                 const total = localStorage.getItem(`${item.id}_total`) || 0;
                 const target = localStorage.getItem(`${item.id}_target`) || 0;
-                const rem = Math.max(0, target - total);
-
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="arabic">${item.ar}</div>
-                        <div class="pronunciation">${item.bn}</div>
-                        <div class="meaning">অর্থ: ${item.mean}</div>
-                        
-                        <div class="stats-grid">
-                            <div class="stat-box"><span>পড়া হয়েছে</span><strong id="total-${item.id}">${total}</strong></div>
-                            <div class="stat-box"><span>বাকি আছে</span><strong id="rem-${item.id}">${rem}</strong></div>
-                            <div class="stat-box"><span>টার্গেট</span><strong id="tar-${item.id}">${target}</strong></div>
-                        </div>
-
-                        <div class="tap-area">
-                            <div class="main-tap-btn" onclick="tapOne('${item.id}')">☝️</div>
-                            <div class="tap-text">চাপুন</div>
-                        </div>
-
-                        <div id="msg-${item.id}" class="celebration">মাশাআল্লাহ! টার্গেট পূর্ণ হয়েছে।</div>
-
-                        <div class="input-group">
-                            <input type="number" id="in-add-${item.id}" placeholder="কতবার পড়লেন?">
-                            <button class="btn-action" onclick="addBulk('${item.id}')">পড়েছি</button>
-                        </div>
-                        <div class="input-group">
-                            <input type="number" id="in-tar-${item.id}" placeholder="টার্গেট সেট করুন">
-                            <button class="btn-gold" onclick="setTarget('${item.id}')">টার্গেট</button>
-                        </div>
-                        <button class="btn-reset-large" onclick="reset('${item.id}')">হিসাব রিসেট করুন</button>
-                    </div>
-                `;
-            });
-            checkAllTargets();
-        }
-
-        window.tapOne = function(id) {
-            if (navigator.vibrate) navigator.vibrate(50);
-            let total = parseInt(localStorage.getItem(`${id}_total`) || 0);
-            total++;
-            updateUI(id, total);
-        }
-
-        window.addBulk = function(id) {
-            const input = document.getElementById(`in-add-${id}`);
-            const val = parseInt(input.value);
-            if (!val || val <= 0) return;
-            let total = parseInt(localStorage.getItem(`${id}_total`) || 0);
-            total += val;
-            updateUI(id, total);
-            input.value = '';
-        }
-
-        window.setTarget = function(id) {
-            const val = parseInt(document.getElementById(`in-tar-${id}`).value);
-            localStorage.setItem(`${id}_target`, val || 0);
-            location.reload();
-        }
-
-        function updateUI(id, total) {
-            localStorage.setItem(`${id}_total`, total);
-            document.getElementById(`total-${id}`).innerText = total;
-            const target = parseInt(localStorage.getItem(`${id}_target`) || 0);
-            document.getElementById(`rem-${id}`).innerText = Math.max(0, target - total);
-            if (target > 0 && total >= target) document.getElementById(`msg-${id}`).style.display = 'block';
-        }
-
-        function checkAllTargets() {
-            tasbeehs.forEach(item => {
-                const total = parseInt(localStorage.getItem(`${item.id}_total`) || 0);
-                const target = parseInt(localStorage.getItem(`${item.id}_target`) || 0);
-                if (target > 0 && total >= target) document.getElementById(`msg-${item.id}`).style.display = 'block';
+                container.innerHTML += `<div class="card"><div class="arabic">${item.ar}</div><div style="font-weight:700;">${item.bn}</div><p style="font-size:13px; opacity:0.8; margin:5px 0;">${item.mean}</p><div class="stats-grid"><div><span>পড়া হয়েছে</span><strong id="total-${item.id}">${total}</strong></div><div><span>বাকি আছে</span><strong id="rem-${item.id}">${Math.max(0, target-total)}</strong></div><div><span>টার্গেট</span><strong id="tar-${item.id}">${target}</strong></div></div><div class="main-tap-btn" onclick="tapOne('${item.id}')">☝️</div><div style="text-align:center; font-size:13px; font-weight:bold; margin:8px 0 15px;">চাপুন</div><div style="display:flex; gap:6px; margin-bottom:6px;"><input type="number" id="in-add-${item.id}" placeholder="কতবার?" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc;"><button onclick="addBulk('${item.id}')" style="background:var(--primary-color); color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:bold;">পড়েছি</button></div><div style="display:flex; gap:6px; margin-bottom:12px;"><input type="number" id="in-tar-${item.id}" placeholder="টার্গেট" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ccc;"><button onclick="setTarget('${item.id}')" style="background:var(--accent-color); color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:bold;">টার্গেট</button></div><button class="btn-reset-large" onclick="reset('${item.id}')">রিসেট করুন</button></div>`;
             });
         }
 
-        window.toggleDarkMode = function() {
-            document.body.classList.toggle('dark-mode');
-        }
+        function openSidebar() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
 
-        window.shareApp = function() {
-            if (navigator.share) {
-                navigator.share({ title: 'ডিজিটাল তাসবিহ', text: 'রিয়াদুল ইসলামের তৈরি ডিজিটাল তাসবিহ অ্যাপ।', url: window.location.href });
-            } else {
-                alert("লিঙ্কটি কপি করে শেয়ার করুন।");
+        function openModal(type) {
+            const modal = document.getElementById('dataModal');
+            const body = document.getElementById('modalBody');
+            const title = document.getElementById('modalTitle');
+            modal.classList.add('active');
+            body.innerHTML = "";
+            closeSidebar();
+
+            if(type === 'dua') {
+                title.innerText = "সুরা ও দোয়া";
+                duaData.forEach(d => body.innerHTML += `<div class="data-item"><b>${d.t}</b><div class="arabic">${d.ar}</div><p style="margin-top:10px;"><b>অনুবাদ:</b> ${d.m}</p></div>`);
+            } else if(type === 'names') {
+                title.innerText = "আল্লাহর ৯৯ নাম";
+                names99.forEach(n => body.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;"><div><b style="color:var(--primary-color);">${n.bn}</b><br><small>${n.m}</small></div><div class="arabic" style="font-size:22px;">${n.ar}</div></div>`);
+            } else if(type === 'quran') {
+                title.innerText = "মুনাজাতের আয়াত";
+                quranDua.forEach(q => body.innerHTML += `<div class="data-item"><b>${q.t}</b><div class="arabic">${q.ar}</div><p style="margin-top:10px;"><b>অনুবাদ:</b> ${q.m}</p></div>`);
             }
         }
 
-        window.reset = function(id) {
-            if(confirm('আপনি কি এই তাসবিহ এর মোট হিসাব রিসেট করতে চান?')) { 
+        function closeModal() { document.getElementById('dataModal').classList.remove('active'); }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); closeSidebar(); }
+
+        window.tapOne = function(id) { 
+            if (navigator.vibrate) navigator.vibrate(60); 
+            let t = parseInt(localStorage.getItem(`${id}_total`)||0)+1; 
+            localStorage.setItem(`${id}_total`, t); 
+            checkAndNotify(id, t);
+            updateUI(id, t); 
+        }
+
+        window.addBulk = function(id) { 
+            let v = parseInt(document.getElementById(`in-add-${id}`).value); 
+            if(!v || v < 0) return; 
+            let t = parseInt(localStorage.getItem(`${id}_total`)||0)+v; 
+            localStorage.setItem(`${id}_total`, t); 
+            checkAndNotify(id, t);
+            updateUI(id, t); 
+            document.getElementById(`in-add-${id}`).value=''; 
+        }
+
+        window.setTarget = function(id) { 
+            let v = parseInt(document.getElementById(`in-tar-${id}`).value); 
+            localStorage.setItem(`${id}_target`, v||0); 
+            initApp(); 
+        }
+
+        function checkAndNotify(id, total) {
+            let target = parseInt(localStorage.getItem(`${id}_target`) || 0);
+            if (target > 0 && total >= target) {
+                setTimeout(() => {
+                    alert("মাশা-আল্লাহ আপনার টার্গেট পূরণ হয়েছে। আল্লাহ আপনার জিকির কবুল করুক আমিন🤲");
+                }, 100);
+            }
+        }
+
+        function updateUI(id, t) { 
+            document.getElementById(`total-${id}`).innerText = t; 
+            let tar = parseInt(localStorage.getItem(`${id}_target`)||0); 
+            document.getElementById(`rem-${id}`).innerText = Math.max(0, tar-t); 
+        }
+
+        function reset(id) { 
+            if(confirm('আপনি কি এই হিসাবটি শূন্য করতে চান?')){ 
                 localStorage.setItem(`${id}_total`, 0); 
-                location.reload(); 
+                localStorage.setItem(`${id}_target`, 0); 
+                initApp(); 
+            } 
+        }
+        
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({ title: 'ডিজিটাল তাসবিহ', url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("লিঙ্কটি কপি করা হয়েছে!");
             }
         }
-
         initApp();
     </script>
 </body>
